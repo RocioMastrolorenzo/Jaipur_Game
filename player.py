@@ -1,8 +1,8 @@
 from logging import raiseExceptions
 
-from Jaipur.card import Card
-from Jaipur.gametoken import GameToken
-from Jaipur.resource import Resource
+from card import Card
+from gametoken import GameToken
+from resource import Resource
 import constants
 
 class Player:

@@ -1,10 +1,10 @@
 import random
 
-from Jaipur.card import Card
-from Jaipur.deck import Deck
-from Jaipur.player import Player
-from Jaipur.resource import Resource
-from Jaipur.gametoken import GameToken
+from card import Card
+from deck import Deck
+from player import Player
+from resource import Resource
+from gametoken import GameToken
 
 
 class Board:

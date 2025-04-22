@@ -1,9 +1,9 @@
 import sys
 
-from Jaipur.board import Board
-from Jaipur.deck import Deck
-from Jaipur.player import Player
-from Jaipur.resource import Resource
+from board import Board
+from deck import Deck
+from player import Player
+from resource import Resource
 
 
 def choose_turn():

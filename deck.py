@@ -1,7 +1,7 @@
 import random
 
-from Jaipur.card import Card
-from Jaipur.resource import Resource
+from card import Card
+from resource import Resource
 
 
 class Deck:

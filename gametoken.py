@@ -1,4 +1,4 @@
-from Jaipur.resource import Resource
+from resource import Resource
 
 
 class GameToken:
