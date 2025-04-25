@@ -1,4 +1,5 @@
 import random
+import json
 
 from card import Card
 from deck import Deck
@@ -6,6 +7,11 @@ from player import Player
 from resource import Resource
 from gametoken import GameToken
 
+
+def custom_serializer(obj):
+    if isinstance(obj, Card):
+        return obj.card_type.value
+    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 class Board:
     def __init__(self, p1, p2, deck):
@@ -108,6 +114,39 @@ class Board:
         else:
             winner = "No one"
         return f"player 1: {self.p1.count_points()} player 2: {self.p2.count_points()} \n {winner} wins!"
+
+
+
+    def jsonify(self):
+        d = {
+            "deck" : self.deck.deck ,
+            "market" : self.market ,
+            "tokens" : self.tokens_to_dict(),
+            "player1": {
+                "hand" : self.p1.hand ,
+                "herd" : self.p1.herd ,
+                "token_pile" : self.p1.token_pile ,
+                "token_tally" : self.p1.token_tally ,
+            } ,
+            "player2": {
+                "hand" : self.p2.hand ,
+                "herd" : self.p2.herd ,
+                "token_pile" : self.p2.token_pile ,
+                "token_tally" : self.p2.token_tally ,
+            }
+        }
+        return json.dumps(d, default=custom_serializer)
+
+    def tokens_to_dict(self):
+        res = {}
+
+        for key in self.tokens:
+            res[key.value] = []
+            for tok in self.tokens[key]:
+                res[key.value].append(tok.value)
+
+        return res
+
 
     def __repr__(self):
         s = ""

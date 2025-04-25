@@ -13,6 +13,7 @@ class Player:
         self.token_pile: list[GameToken] = []
         self.token_tally: int = 0
         self.score: int = 0
+        self.conn = None
 
     def __repr__(self):
         s = ''

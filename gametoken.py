@@ -8,7 +8,7 @@ class GameToken:
 
     def __repr__(self):
         if self.token_type in Resource.normal_resources():
-            return str(self.value)
+            return f"Token({self.token_type}{self.value})"
         else:
             return '?'
 

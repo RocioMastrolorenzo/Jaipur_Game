@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class Resource(Enum):
+    """
     DIAMOND = '\033[91mdi\033[0m'  # Red
     GOLD = '\033[93mgo\033[0m'  # Yellow
     SILVER = '\033[96msi\033[0m'  # Cyan
@@ -12,6 +13,17 @@ class Resource(Enum):
     TOKENX3 = '\033[34mx3\033[0m'
     TOKENX4 = '\033[34mx4\033[0m'
     TOKENX5 = '\033[34mx5\033[0m'
+    """
+    DIAMOND = 'di'
+    GOLD = 'go'
+    SILVER = 'si'
+    CLOTH = 'cl'
+    SPICES = 'sp'
+    LEATHER = 'le'
+    CAMEL = 'ca'
+    TOKENX3 = 'x3'
+    TOKENX4 = 'x4'
+    TOKENX5 = 'x5'
 
     def __hash__(self):
         return hash(self.value)
