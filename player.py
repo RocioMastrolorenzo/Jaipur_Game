@@ -37,6 +37,8 @@ class Player:
 
     def sell(self, board, type, amount):
 
+        type = Resource(type)
+
         total_from_type = 0
         for i in self.hand:
             if i.card_type == type:
@@ -166,3 +168,11 @@ class Player:
         for i, card in enumerate(self.hand):
             card.rect.x = first_card_pos + i * (constants.CARD_WIDTH + constants.PADDING)
             card.rect.y = 853
+
+    def get_bonus_amounts(self):
+        bonus_pile = {"x3": 0, "x4": 0, "x5": 0}
+        for i in self.token_pile:
+            if i.token_type in Resource.bonus_tokens():
+                bonus_pile[i.token_type.value] += 1
+
+        return bonus_pile

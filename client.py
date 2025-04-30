@@ -1,13 +1,271 @@
 import socket
+import json
 
-HOST = '127.0.0.1'
-PORT = 12345
+def turn(player, board):
+    while True:
+        chosen_turn = choose_turn()
+        if chosen_turn == 1:  # sell
+            try:
+                user_type, user_amount = get_sell_input(player, board)
+                return [chosen_turn, user_type, user_amount]
+            except ValueError as e:
+                print(e)
+                continue
+        elif chosen_turn == 2:  # exchange
+            try:
+                player_indices, market_indices = get_exchange_input(player, board)
+                return [chosen_turn, player_indices, market_indices]
+            except ValueError as e:
+                print(e)
+                continue
+        elif chosen_turn == 3:  # take one
+            try:
+                card_index = get_take_one_resource_input(board)
+                return [chosen_turn, card_index]
+            except ValueError as e:
+                print(e)
+                continue
+        elif chosen_turn == 4:  # take all camels
+            try:
+                return [chosen_turn]
+            except ValueError as e:
+                print(e)
+                continue
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect((HOST, PORT))
+def get_sell_input(player, board):
+    user_amount = ""
+    user_type = ""
+    valid_inputs = {
+        "diamond": "di",
+        "diamonds": "di",
+        "di": "di",
+        "gold": "go",
+        "go": "go",
+        "silver": "si",
+        "si": "si",
+        "cloth": "cl",
+        "cl": "cl",
+        "spices": "sp",
+        "spice" : "sp",
+        "sp": "sp",
+        "leather": "le",
+        "le": "le",
+        "camel": "ca",
+        "camels" :"ca",
+        "ca": "ca" ,
+    }
+    print(board[player]["hand"])
+    while True:
+        try:
+            user_amount = int(input("Enter amount to sell "))
+            break
+        except ValueError as e:
+            print("Enter a valid amount")
+            continue
+    while True:
+        try:
+            user_type_input = input("Enter type of resource to sell ")
+            if user_type_input in valid_inputs:
+                user_type = valid_inputs[user_type_input]
+                break
+            if user_type_input not in valid_inputs:
+                raise ValueError("Enter a valid type of resource")
+        except ValueError as e:
+            print(e)
+            continue
 
-welcome = client.recv(4096).decode()
-print(welcome)
+    return user_type, user_amount
 
-d = client.recv(4096).decode()
-print(d)
+def get_exchange_input(player, board):
+    market_indices = ""
+    while True:
+        try:
+            print_market(board)
+            market_indices = input("choose the cards you want to exchange: (0-1-2) ").split("-")
+            market_indices = list({int(i) for i in market_indices})
+            break
+        except ValueError:
+            print(f"Choose a valid card number.")
+            continue
+
+    for i in market_indices:
+        if i >= len(board["market"]):
+            raise ValueError(f"{i} is not a valid card number.")
+        if board["market"][i] == "ca":
+            raise ValueError("You can't exchange camels")
+    market_indices.sort()
+
+    player_indices = ""
+    while True:
+        try:
+            print_hand(player, board)
+            player_indices = input(f"select {len(market_indices)} of your cards separated by spaces: ").split(" ")
+            player_indices = list({int(i) for i in player_indices})
+            break
+        except ValueError:
+            print(f"Choose a valid card number.")
+            continue
+    player_indices.sort()
+    for i in player_indices:
+        if i >= len(board[player]["hand"]) + len(board[player]["herd"]):
+            raise ValueError(f"{i} is not a valid card number.")
+
+    # changes input to 99 if a camel was chosen
+    for i in range(len(player_indices)):
+        if player_indices[i] >= len(board[player]["hand"]):
+            player_indices[i] = 99
+
+    return player_indices, market_indices
+
+def get_take_one_resource_input(board):
+    card_index_user = ""
+    while True:
+        try:
+            print_market(board)
+            card_index_user = int(input("Select the card to take "))
+            break
+        except ValueError:
+            print(f"Choose a valid card number.")
+            continue
+    if card_index_user >= len(board["market"]):
+        raise ValueError(f"{card_index_user} is not a valid card number.")
+
+    if board["market"][card_index_user] == "ca":
+        raise ValueError("You can't take a single camel")
+
+    return card_index_user
+
+def print_hand(player, board):
+    string_hand = ""
+
+    # adds the cards from the hand
+    string_hand += f"{board[player]["hand"]}| "
+
+    # adds the cards from the herd
+    string_hand += f"{board[player]["herd"]}\n"
+
+    # adds the index number on the bottom
+    for i in range(len(board[player]["hand"])):
+        string_hand += "  " + str(i) + "   "
+
+    string_hand += "| "
+
+    for i in range(len(board[player]["herd"])):
+        string_hand += "  " + str(i + len(board[player]["hand"])) + "  "
+
+    print(string_hand)
+
+def print_market(board):
+    str_market = ""
+
+    # adds the cards from the market
+    str_market += f"{board["market"]}\n"
+
+    # adds the index number on the bottom
+    for i in range(len(board["market"])):
+        str_market += "  " + str(i) + "   "
+
+    print(str_market)
+
+def choose_turn():
+    # dictionary of valid words to input in addition to the corresponding number
+    valid_inputs = {
+        "1": 1, "sell": 1, "sell cards": 1,
+        "2": 2, "exchange": 2, "exchange cards": 2,
+        "3": 3, "take": 3, "take one": 3, "resource": 3, "take one resource": 3,
+        "4": 4, "camels": 4, "take camels": 4, "take all camels": 4, "camel": 4
+    }
+    while True:
+        print()
+        user_turn_input = input("Choose your action to play \n"
+                     "1. Sell cards\n"
+                     "2. Exchange cards\n"
+                     "3. Take one resource\n"
+                     "4. Take all camels\n"
+                     ).strip().lower()
+
+        if user_turn_input in valid_inputs:
+            return valid_inputs[user_turn_input]  # returns an int
+        else:
+            print("Enter a valid action")
+
+
+if __name__ == '__main__':
+    HOST = '127.0.0.1'
+    PORT = 12345
+
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect((HOST, PORT))
+
+    welcome = client.recv(4096).decode()
+    print(welcome)
+
+    if "Player 1" in welcome:
+        bottom_player = "player1"
+        top_player = "player2"
+    else:
+        top_player = "player1"
+        bottom_player = "player2"
+
+    round_end = False
+
+    while not round_end:
+
+        msg = client.recv(4096).decode()
+        game_board_incoming = json.loads(msg)
+
+        """
+        print(game_board_incoming)
+
+        temp = {
+            'deck': ['si', 'cl', 'sp', 'di', 'si', 'cl', 'cl', 'le', 'sp', 'si', 'le', 'cl', 'cl', 'ca', 'ca', 'di', 'go', 'le',
+                     'go', 'ca', 'go', 'si', 'si', 'sp', 'le', 'di', 'ca', 'le', 'sp', 'go', 'go', 'ca', 'le', 'ca', 'sp', 'ca',
+                     'cl', 'si', 'di', 'le'],
+            'market': ['ca', 'ca', 'ca', 'sp', 'di'],
+            'tokens': {'di': [7, 7, 5, 5, 5], 'go': [6, 6, 5, 5, 5], 'si': [5, 5, 5, 5, 5], 'cl': [5, 3, 3, 2, 2, 1, 1],
+                       'sp': [5, 3, 3, 2, 2, 1, 1], 'le': [4, 3, 2, 1, 1, 1, 1, 1, 1], 'x5': [8, 9, 10, 8, 10],
+                       'x4': [4, 4, 5, 5, 6, 6], 'x3': [3, 3, 1, 1, 2, 2, 2], 'ca': [5]},
+            'player1': {'hand': ['di', 'go', 'cl', 'sp', 'sp'], 'herd': [], 'token_pile': [], 'token_tally': 0},
+            'player2': {'hand': ['le', 'le', 'le', 'cl'], 'herd': ['ca'], 'token_pile': [], 'token_tally': 0}}
+        """
+
+
+        s = ""
+        blank_line = " " * 104 + "\n"
+
+        s += "+" + "-" * 104 + "+" + "\n"
+        s += f'{" "*10}Opponent hand:  {'[??] ' * len(game_board_incoming[top_player]["hand"])}\n'
+        s += blank_line
+        s += f'{'Opponent herd: ' + str(len(game_board_incoming[top_player]["herd"])) :^104}\n'
+        s += f'{'Deck: ' + str(len(game_board_incoming["deck"])):^104}\n'
+        s += f'{"Tokens: " + str(game_board_incoming[top_player]["token_pile"]):>104}\n'
+        s += f'{"Current points: " + str(game_board_incoming[top_player]["token_tally"]):>104}\n'
+        s += blank_line
+        for resource in game_board_incoming["tokens"]:
+            s += str(resource)
+            for value in game_board_incoming["tokens"][resource]:
+                s += str(value)
+            s += '\n'
+        s += f'{" " * 30}{game_board_incoming["market"]}\n'
+        s += blank_line
+        s += f'{"Tokens: " + str(game_board_incoming[bottom_player]["token_pile"]):>104}\n'
+        s += f'{"Current points: " + str(game_board_incoming[bottom_player]["token_tally"]):>104}\n'
+        s += f'{'Your herd: ' + str(len(game_board_incoming[bottom_player]["herd"])) :^104}\n'
+        s += blank_line
+        s += f'{" " * 10} Your hand: {game_board_incoming[bottom_player]["hand"]}\n'
+        s += "+" + "-" * 104 + "+" + "\n"
+
+        print(s)
+
+        turn_msg = client.recv(4096).decode()
+        print(turn_msg)
+
+        if bottom_player in turn_msg:
+            client.sendall(json.dumps(turn(bottom_player, game_board_incoming)).encode())
+        elif top_player in turn_msg:
+            print("waiting for opponent...")
+
+        round_end = bool(int(client.recv(4096).decode()))
+        print(round_end)
+
+    input()
