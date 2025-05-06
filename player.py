@@ -39,19 +39,6 @@ class Player:
 
         type = Resource(type)
 
-        total_from_type = 0
-        for i in self.hand:
-            if i.card_type == type:
-                total_from_type += 1
-
-        if amount > total_from_type:
-            raise ValueError("You don't have enough cards of this type")
-
-        if amount <= 0:
-            raise ValueError("You can't sell less than one card")
-
-        if type in Resource.expensive_resources() and amount < 2:
-            raise ValueError("You must sell at least two cards of this type")
 
         # put sold cards on discard pile
         cards_sold = 0
@@ -84,31 +71,6 @@ class Player:
         player_cards_ex = []
         market_cards_ex = []
 
-        player_cards_types = set()
-        market_cards_types = set()
-
-        if 99 in market_card_indices:
-            raise ValueError("You can't exchange camels")
-        if len(player_card_indices) < 2:
-            raise ValueError("You must exchange at least two cards")
-        if len(player_card_indices) != len(market_card_indices):
-            raise ValueError("You must exchange the same amount of cards")
-        if len(market_card_indices) > len(self.hand + self.herd):
-            raise ValueError("You don't have enough cards to exchange")
-        if len(player_card_indices) > len(board.market):
-            raise ValueError("There's not enough cards on the market to exchange")
-        if player_card_indices.count(99) > len(self.herd):
-            raise ValueError("You don't have enough camels")
-
-        for i in market_card_indices[::-1]:
-            market_cards_types.add(board.market[i])
-        for i in player_card_indices[::-1]:
-            if i == 99:
-                player_cards_types.add(self.herd[0])
-            else:
-                player_cards_types.add(self.hand[i])
-        if player_cards_types.intersection(market_cards_types):
-            raise ValueError("You can't exchange the same type of card")
 
         for i in market_card_indices[::-1]:
             market_cards_ex.append(board.market.pop(i))
@@ -125,16 +87,10 @@ class Player:
             self.hand.append(market_cards_ex.pop(0))
 
     def take_one_resource(self, board, card_index):
-        if len(self.hand) == 7:
-            raise ValueError("You can't have more than seven cards in your hand")
-
         # take the card from the market and put it in the hand
         self.hand.append(board.market.pop(card_index))
 
     def take_all_camels(self, board):
-        camel_count = board.market.count(Card(Resource.CAMEL))
-        if camel_count == 0:
-            raise ValueError("There's no camels to take")
 
         for i in range(len(board.market))[::-1]:
             if board.market[i].card_type == Resource.CAMEL:
