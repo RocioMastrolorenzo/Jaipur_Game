@@ -91,7 +91,6 @@ class Player:
         self.hand.append(board.market.pop(card_index))
 
     def take_all_camels(self, board):
-
         for i in range(len(board.market))[::-1]:
             if board.market[i].card_type == Resource.CAMEL:
                 self.herd.append(board.market.pop(i))
@@ -103,11 +102,11 @@ class Player:
         return s
 
     def count_tokens_no_bonus(self):
-        tally = 0
+        #reset tally so it doesn't add up each round and shows real total
+        self.token_tally = 0
         for i in self.token_pile:
             if i.token_type not in Resource.bonus_tokens():
-                tally += i.value
-        return tally
+                self.token_tally += i.value
 
     def count_points(self):
         round_score = 0

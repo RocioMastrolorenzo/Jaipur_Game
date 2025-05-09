@@ -5,19 +5,27 @@ from resource import Resource
 
 
 class Deck:
-    def __init__(self):
+    def __init__(self, debug=False):
         self.deck: list[Card] = []
-        for i in range(11):
-            self.deck.append(Card(Resource.CAMEL))
-        for i in range(6):
-            self.deck.append(Card(Resource.DIAMOND))
-            self.deck.append(Card(Resource.GOLD))
-            self.deck.append(Card(Resource.SILVER))
-        for i in range(8):
-            self.deck.append(Card(Resource.CLOTH))
-            self.deck.append(Card(Resource.SPICES))
-        for i in range(10):
-            self.deck.append(Card(Resource.LEATHER))
+        if debug:
+            for i in range(6):
+                self.deck.append(Card(Resource.CAMEL))
+            for i in range(8):
+                self.deck.append(Card(Resource.CLOTH))
+            for i in range(4):
+                self.deck.append(Card(Resource.LEATHER))
+        else:
+            for i in range(11):
+                self.deck.append(Card(Resource.CAMEL))
+            for i in range(6):
+                self.deck.append(Card(Resource.DIAMOND))
+                self.deck.append(Card(Resource.GOLD))
+                self.deck.append(Card(Resource.SILVER))
+            for i in range(8):
+                self.deck.append(Card(Resource.CLOTH))
+                self.deck.append(Card(Resource.SPICES))
+            for i in range(10):
+                self.deck.append(Card(Resource.LEATHER))
 
     def __repr__(self):
         return str(self.deck)

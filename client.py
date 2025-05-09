@@ -95,7 +95,7 @@ def get_exchange_input(player, board):
             print_market(board)
             market_indices = input("choose the cards you want to exchange separated by spaces: ")
             check_goback(market_indices)
-            market_indices = list({int(i) for i in market_indices.split(" ")})
+            market_indices = list({int(i) for i in market_indices.split(" ")}) # is a set first to remove duplicates
 
             if len(market_indices) < 2:
                 raise ValueError("You must exchange at least two cards")
@@ -135,6 +135,11 @@ def get_exchange_input(player, board):
 
             if player_types.intersection(market_types):
                 raise ValueError("You can't exchange the same type of card")
+
+            # Calculates the amount of chosen cards that are camels, to see if the resulting hand will be over hand size limit
+            chosen_camels = len([i for i in player_indices if i > len(board[player]["hand"]) - 1])
+            if len(board[player]["hand"]) + chosen_camels > 7:
+                raise ValueError("You can't have more than seven cards in your hand")
 
             break
         except ValueError as e:
@@ -259,6 +264,7 @@ if __name__ == '__main__':
     while not round_end:
 
         msg = client.recv(4096).decode()
+        print(msg)
         game_board_incoming = json.loads(msg)
 
         """
@@ -288,9 +294,9 @@ if __name__ == '__main__':
         s += f'{"Current points: " + str(game_board_incoming[top_player]["token_tally"]):>104}\n'
         s += blank_line
         for resource in game_board_incoming["tokens"]:
-            s += str(resource)
+            s += str(resource) + " | "
             for value in game_board_incoming["tokens"][resource]:
-                s += str(value)
+                s += str(value) + " "
             s += '\n'
         s += f'{" " * 30}{game_board_incoming["market"]}\n'
         s += blank_line
@@ -303,7 +309,7 @@ if __name__ == '__main__':
 
         print(s)
 
-        turn_msg = client.recv(4096).decode()
+        turn_msg = f"{game_board_incoming["current_player"]}'s turn: \n"
         print(turn_msg)
 
         if bottom_player in turn_msg:

@@ -119,9 +119,10 @@ class Board:
 
     def jsonify(self):
         d = {
-            "deck" : self.deck.deck ,
-            "market" : self.market ,
+            "deck" : self.deck.deck,
+            "market" : self.market,
             "tokens" : self.tokens_to_dict(),
+            "current_player" : self.current_player.name,
             "player1": {
                 "hand" : self.p1.hand ,
                 "herd" : self.p1.herd ,
@@ -132,7 +133,7 @@ class Board:
                 "hand" : self.p2.hand ,
                 "herd" : self.p2.herd ,
                 "token_pile" : self.p2.get_bonus_amounts(),
-                "token_tally" : self.p2.token_tally ,
+                "token_tally" : self.p2.token_tally,
             }
         }
         return json.dumps(d, default=custom_serializer)
@@ -146,6 +147,10 @@ class Board:
                 res[key.value].append(tok.value)
 
         return res
+
+    def game_end_check(self):
+        if self.p1.score == 2 or self.p2.score == 2:
+            return True
 
     def __repr__(self):
         s = ""
@@ -176,3 +181,5 @@ class Board:
         s += f'{" " * self.align_offset}{'Your hand: ' + str(self.current_player)}\n'
         s += "+" + "-" * 104 + "+" + "\n"
         return s
+
+
