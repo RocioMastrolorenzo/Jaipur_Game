@@ -33,10 +33,11 @@ def play_turn(input, player, board):
     elif input[0] == 4:
         player.take_all_camels(board)
 
-def send_round_status(p1,p2, round_end):
-    msg = str(int(round_end)).encode()
+def send_str_to_both(p1,p2,s):
+    msg = s.encode()
     p1.conn.sendall(msg)
     p2.conn.sendall(msg)
+
 
 if __name__ == '__main__':
 
@@ -61,7 +62,7 @@ if __name__ == '__main__':
         addresses.append(addr)
 
     # initial setup
-    deck = Deck(debug=True)
+
     # player1_name = input("Enter the name of the first player: ")
     # player2_name = input("Enter the name of the second player: ")
     player1_name = "player1"
@@ -70,19 +71,28 @@ if __name__ == '__main__':
     player1.conn = player_connections[0]
     player2 = Player(player2_name)
     player2.conn = player_connections[1]
-    deck.shuffle_cards()
-    player1.deal_hand(deck)
-    player2.deal_hand(deck)
-    board = Board(player1, player2, deck)
-    round_end = board.round_end_check()
-    game_end = board.game_end_check()
+    game_end = False
+    round_end = False
+
     # Gameplay
 
-    print(board)
 
     while not game_end:
+        print("1")
+        player1.empty_player()
+        player2.empty_player()
+        print("2")
+        deck = Deck(debug=True)
+        deck.shuffle_cards()
+        board = Board(player1, player2, deck)
+        print("3")
+        player1.deal_hand(deck)
+        player2.deal_hand(deck)
+        print("4")
         while not round_end:
+            print("5")
             board.current_player.sort_hand()
+            print("llego???")
             send_board(player1, player2, board)
             turn_input = board.current_player.conn.recv(4096).decode()
             turn_input = json.loads(turn_input)
@@ -102,13 +112,17 @@ if __name__ == '__main__':
             board.switch_players()
             print(board.current_player)
             print("switcheó players")
-            send_round_status(player1, player2, round_end)
+            send_str_to_both(player1, player2, str(int(round_end)))
             print("Mandó status")
         board.give_camel_token()
         print(board.tokens)
-        board.give_point()
+        round_winner = board.give_point()
+        send_str_to_both(player1, player2, round_winner)
+        print(f"Player 1: {player1.count_points()} Player 2: {player2.count_points()} \n{round_winner} wins!")
         print(player1.score)
         print(player2.score)
         game_end = board.game_end_check()
+        send_str_to_both(player1, player2, str(int(game_end)))
         round_end = False
 
+input()

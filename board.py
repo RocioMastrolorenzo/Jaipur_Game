@@ -27,8 +27,7 @@ class Board:
         self.other_player: Player = p2
 
         self.shuffle_bonus_tokens()
-        self.p1.check_herd()
-        self.p2.check_herd()
+
 
     # noinspection PyMethodMayBeStatic
     def create_tokens(self):
@@ -95,9 +94,10 @@ class Board:
         for i in self.tokens:
             if len(self.tokens[i]) == 0 and i in Resource.normal_resources():
                 empty_token_pile += 1
+
         if empty_token_pile >= 3:
             return True
-        elif len(self.deck) == 0 and len(self.market) < 5:
+        elif len(self.market) + len(self.deck) < 5:
             return True
         else:
             return False
@@ -111,9 +111,10 @@ class Board:
         if self.p1.count_points() != self.p2.count_points():
             winner = max([self.p1, self.p2], key=lambda p: p.count_points())
             winner.score += 1
+            winner = winner.name # to return a string, not a player object repr
         else:
-            winner = "No one"
-        return f"player 1: {self.p1.count_points()} player 2: {self.p2.count_points()} \n {winner} wins!"
+            winner = "Tie    "
+        return winner
 
 
 
@@ -149,8 +150,7 @@ class Board:
         return res
 
     def game_end_check(self):
-        if self.p1.score == 2 or self.p2.score == 2:
-            return True
+        return self.p1.score == 2 or self.p2.score == 2
 
     def __repr__(self):
         s = ""

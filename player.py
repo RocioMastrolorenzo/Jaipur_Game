@@ -23,6 +23,7 @@ class Player:
 
     def deal_hand(self, deck):
         self.hand.extend(deck.deal_cards(5))
+        self.check_herd()
 
     def hide_hand(self):
         hidden_hand = ''
@@ -131,3 +132,9 @@ class Player:
                 bonus_pile[i.token_type.value] += 1
 
         return bonus_pile
+
+    def empty_player(self):
+        self.hand = []
+        self.herd = []
+        self.token_tally = 0
+        self.token_pile = []
