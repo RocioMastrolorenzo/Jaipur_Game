@@ -268,6 +268,20 @@ def print_board(board, top_player, bottom_player):
     s += "+" + "-" * 104 + "+" + "\n"
     return print(s)
 
+def play_again():
+    while True:
+        try:
+            play_again = input("Play again? Yes/No ").upper()
+            if play_again == "YES" or play_again == "Y":
+                return False
+            elif play_again == "NO" or play_again == "N":
+                return True
+            else:
+                raise ValueError
+        except ValueError:
+            print("Enter a valid response. (Yes or No)")
+
+
 if __name__ == '__main__':
     HOST = '127.0.0.1'
     PORT = 12345
@@ -287,43 +301,47 @@ if __name__ == '__main__':
 
     round_end = False
     game_end = False
+    stop_playing = False
 
-    while not game_end:
-        while not round_end:
-            print("llego")
-            msg = client.recv(4096).decode()
-            print(msg)
-            game_board_incoming = json.loads(msg)
+    while not stop_playing:
+        while not game_end:
+            while not round_end:
+                print("llego")
+                msg = client.recv(4096).decode()
+                print(msg)
+                game_board_incoming = json.loads(msg)
 
-            """
-            print(game_board_incoming)
-    
-            temp = {
-                'deck': ['si', 'cl', 'sp', 'di', 'si', 'cl', 'cl', 'le', 'sp', 'si', 'le', 'cl', 'cl', 'ca', 'ca', 'di', 'go', 'le',
-                         'go', 'ca', 'go', 'si', 'si', 'sp', 'le', 'di', 'ca', 'le', 'sp', 'go', 'go', 'ca', 'le', 'ca', 'sp', 'ca',
-                         'cl', 'si', 'di', 'le'],
-                'market': ['ca', 'ca', 'ca', 'sp', 'di'],
-                'tokens': {'di': [7, 7, 5, 5, 5], 'go': [6, 6, 5, 5, 5], 'si': [5, 5, 5, 5, 5], 'cl': [5, 3, 3, 2, 2, 1, 1],
-                           'sp': [5, 3, 3, 2, 2, 1, 1], 'le': [4, 3, 2, 1, 1, 1, 1, 1, 1], 'x5': [8, 9, 10, 8, 10],
-                           'x4': [4, 4, 5, 5, 6, 6], 'x3': [3, 3, 1, 1, 2, 2, 2], 'ca': [5]},
-                'player1': {'hand': ['di', 'go', 'cl', 'sp', 'sp'], 'herd': [], 'token_pile': [], 'token_tally': 0},
-                'player2': {'hand': ['le', 'le', 'le', 'cl'], 'herd': ['ca'], 'token_pile': [], 'token_tally': 0}}
-            """
-            print_board(game_board_incoming, top_player, bottom_player)
+                """
+                print(game_board_incoming)
+        
+                temp = {
+                    'deck': ['si', 'cl', 'sp', 'di', 'si', 'cl', 'cl', 'le', 'sp', 'si', 'le', 'cl', 'cl', 'ca', 'ca', 'di', 'go', 'le',
+                             'go', 'ca', 'go', 'si', 'si', 'sp', 'le', 'di', 'ca', 'le', 'sp', 'go', 'go', 'ca', 'le', 'ca', 'sp', 'ca',
+                             'cl', 'si', 'di', 'le'],
+                    'market': ['ca', 'ca', 'ca', 'sp', 'di'],
+                    'tokens': {'di': [7, 7, 5, 5, 5], 'go': [6, 6, 5, 5, 5], 'si': [5, 5, 5, 5, 5], 'cl': [5, 3, 3, 2, 2, 1, 1],
+                               'sp': [5, 3, 3, 2, 2, 1, 1], 'le': [4, 3, 2, 1, 1, 1, 1, 1, 1], 'x5': [8, 9, 10, 8, 10],
+                               'x4': [4, 4, 5, 5, 6, 6], 'x3': [3, 3, 1, 1, 2, 2, 2], 'ca': [5]},
+                    'player1': {'hand': ['di', 'go', 'cl', 'sp', 'sp'], 'herd': [], 'token_pile': [], 'token_tally': 0},
+                    'player2': {'hand': ['le', 'le', 'le', 'cl'], 'herd': ['ca'], 'token_pile': [], 'token_tally': 0}}
+                """
+                print_board(game_board_incoming, top_player, bottom_player)
 
-            turn_msg = f"{game_board_incoming["current_player"]}'s turn: \n"
-            print(turn_msg)
+                turn_msg = f"{game_board_incoming["current_player"]}'s turn: \n"
+                print(turn_msg)
 
-            if bottom_player in turn_msg:
-                client.sendall(json.dumps(turn(bottom_player, game_board_incoming)).encode())
-            elif top_player in turn_msg:
-                print("waiting for opponent...")
+                if bottom_player in turn_msg:
+                    client.sendall(json.dumps(turn(bottom_player, game_board_incoming)).encode())
+                elif top_player in turn_msg:
+                    print("waiting for opponent...")
 
-            round_end = bool(int(client.recv(1).decode()))
-            print(round_end)
-        round_end = False
-        round_winner = client.recv(7).decode()
-        print(round_winner)
-        game_end = bool(int(client.recv(1).decode()))
-        print(game_end)
-    input()
+                round_end = bool(int(client.recv(1).decode()))
+                print(round_end)
+            round_end = False
+            round_winner = client.recv(7).decode()
+            print(round_winner)
+            game_end = bool(int(client.recv(1).decode()))
+            print(game_end)
+        game_end = False
+        client.sendall(str(int(play_again())).encode())
+        stop_playing = bool(int(client.recv(1).decode()))
