@@ -1,8 +1,8 @@
 import socket
 import json
 
-from custom_exceptions import GoBack
-
+class GoBack(Exception):
+    pass
 
 def turn(player, board):
     while True:
@@ -284,6 +284,7 @@ def play_again():
 
 if __name__ == '__main__':
     HOST = '127.0.0.1'
+    HOST = input("Enter IP")
     PORT = 12345
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

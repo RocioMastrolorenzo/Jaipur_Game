@@ -52,6 +52,8 @@ if __name__ == '__main__':
 
     print("Server waiting for players...")
 
+    host = socket.gethostbyname(socket.gethostname())
+    print(host)
     player_connections = []
     addresses = []
 
@@ -85,7 +87,7 @@ if __name__ == '__main__':
                 player1.empty_player()
                 player2.empty_player()
                 print("2")
-                deck = Deck(debug=True)
+                deck = Deck(debug=False)
                 deck.shuffle_cards()
                 board = Board(player1, player2, deck)
                 print("3")
@@ -103,6 +105,7 @@ if __name__ == '__main__':
                     play_turn(turn_input, board.current_player, board)
                     player1.count_tokens_no_bonus()
                     player2.count_tokens_no_bonus()
+                    board.current_player.sort_hand()
                     print(board)
                     print(board.market)
                     round_end = board.round_end_check()
