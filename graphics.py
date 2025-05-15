@@ -49,6 +49,7 @@ if __name__ == '__main__':
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     running = False
+
         screen.fill(constants.BACKGROUND_COLOR)
 
         draw_deck(deck)

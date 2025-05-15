@@ -54,18 +54,18 @@ class Player:
 
         # get resource tokens
         for i in range(amount):
-            self.token_pile.append(board.tokens[type].pop(0))
+            self.token_pile.append(board.tokens[type].pop())
 
         # get bonus tokens
 
         if amount == 3 and len(board.tokens[Resource.TOKENX3]) > 0:
-            self.token_pile.append(board.tokens[Resource.TOKENX3].pop(0))
+            self.token_pile.append(board.tokens[Resource.TOKENX3].pop())
 
         elif amount == 4 and len(board.tokens[Resource.TOKENX4]) > 0:
-            self.token_pile.append(board.tokens[Resource.TOKENX4].pop(0))
+            self.token_pile.append(board.tokens[Resource.TOKENX4].pop())
 
         elif amount >= 5 and len(board.tokens[Resource.TOKENX5]) > 0:
-            self.token_pile.append(board.tokens[Resource.TOKENX5].pop(0))
+            self.token_pile.append(board.tokens[Resource.TOKENX5].pop())
 
     def exchange(self, board, player_card_indices, market_card_indices):
 

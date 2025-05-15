@@ -32,12 +32,12 @@ class Board:
     # noinspection PyMethodMayBeStatic
     def create_tokens(self):
         token_mapping = {
-            Resource.DIAMOND: [7, 7, 5, 5, 5],
-            Resource.GOLD: [6, 6, 5, 5, 5],
+            Resource.DIAMOND: [5, 5, 5, 7, 7],
+            Resource.GOLD: [5, 5, 5, 6, 6],
             Resource.SILVER: [5, 5, 5, 5, 5],
-            Resource.CLOTH: [5, 3, 3, 2, 2, 1, 1],
-            Resource.SPICES: [5, 3, 3, 2, 2, 1, 1],
-            Resource.LEATHER: [4, 3, 2, 1, 1, 1, 1, 1, 1],
+            Resource.CLOTH: [1, 1, 2, 2, 3, 3, 5],
+            Resource.SPICES: [1, 1, 2, 2, 3, 3, 5],
+            Resource.LEATHER: [1, 1, 1, 1, 1, 1, 2, 3, 4],
             Resource.TOKENX5: [10, 10, 9, 8, 8],
             Resource.TOKENX4: [6, 6, 5, 5, 4, 4],
             Resource.TOKENX3: [3, 3, 2, 2, 2, 1, 1],
