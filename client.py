@@ -250,7 +250,7 @@ def print_board(board, top_player, bottom_player):
     s += blank_line
     s += f'{'Opponent herd: ' + str(len(board[top_player]["herd"])) :^104}\n'
     s += f'{'Deck: ' + str(len(board["deck"])):^104}\n'
-    s += f'{"Tokens: " + str(board[top_player]["token_pile"]):>104}\n'
+    s += f'{"Tokens: " + str(board[top_player]["token_bonus_amount"]):>104}\n'
     s += f'{"Current points: " + str(game_board_incoming[top_player]["token_tally"]):>104}\n'
     s += blank_line
     for resource in board["tokens"]:
@@ -260,7 +260,7 @@ def print_board(board, top_player, bottom_player):
         s += '\n'
     s += f'{" " * 30}{board["market"]}\n'
     s += blank_line
-    s += f'{"Tokens: " + str(board[bottom_player]["token_pile"]):>104}\n'
+    s += f'{"Tokens: " + str(board[bottom_player]["token_bonus_amount"]):>104}\n'
     s += f'{"Current points: " + str(board[bottom_player]["token_tally"]):>104}\n'
     s += f'{'Your herd: ' + str(len(board[bottom_player]["herd"])) :^104}\n'
     s += blank_line

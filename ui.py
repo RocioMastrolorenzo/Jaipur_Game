@@ -119,11 +119,14 @@ def load_images():
     }
     return images_dict
 
-def draw_text(screen, text, size, x, y, color=WHITE):
-    font = pygame.font.SysFont("arial", size)
+def draw_text(screen, text, size, x, y, color=WHITE, centered=False):
+    font = pygame.font.SysFont("roboto", size)
     surface = font.render(text, True, color)
     rect = surface.get_rect()
-    rect.topleft = (x, y)
+    if centered:
+        rect.center = (x, y)
+    else:
+        rect.topleft = (x, y)
     screen.blit(surface, rect)
 
 
@@ -148,7 +151,19 @@ def draw_board(screen, game_board, images, top_player, bottom_player):
                 screen.blit(images["tokens"][k], (TOKEN_LEFT_X , TOKEN_Y[k] - 6 * i))
         else:
             for i, number in enumerate(v):
-                    screen.blit(images["tokens"][k + str(number)], (TOKEN_RIGHT_X - 20 * i , TOKEN_Y[k]))
+                    screen.blit(images["tokens"][k + str(number)], (TOKEN_RIGHT_X - 22 * i , TOKEN_Y[k]))
+
+    for k, v in game_board[top_player]["token_bonus_amount"].items():
+        screen.blit(images["tokens"][k], (TOKEN_X + (TOKEN_WIDTH + 20) * (int(k[1]) - 3), TOP_TOKEN_Y))
+        screen.blit(images["tokens"][k], (TOKEN_X + (TOKEN_WIDTH + 20) * (int(k[1]) - 3), BOTTOM_TOKEN_Y))
+        draw_text(screen, str(v), SMALL_TEXT_SIZE, (TOKEN_VALUE_X + (TOKEN_WIDTH + 20) * (int(k[1]) - 3)), TOP_TOKEN_VALUE_Y, (0,0,0), True)
+        draw_text(screen, str(v), SMALL_TEXT_SIZE, (TOKEN_VALUE_X + (TOKEN_WIDTH + 20) * (int(k[1]) - 3)), BOTTOM_TOKEN_VALUE_Y, (0, 0, 0), True)
+
+    draw_text(screen, str(len(game_board["deck"])), MEDIUM_TEXT_SIZE , DECK_SIZE_X, DECK_SIZE_Y,(0,0,0), True)
+    draw_text(screen, str(len(game_board[top_player]["herd"])), MEDIUM_TEXT_SIZE , HERD_SIZE_X, TOP_HERD_SIZE_Y,(0,0,0), True)
+    draw_text(screen, str(len(game_board[bottom_player]["herd"])), MEDIUM_TEXT_SIZE, HERD_SIZE_X, BOTTOM_HERD_SIZE_Y, (0, 0, 0), True)
+    draw_text(screen, str(game_board[top_player]["token_tally"]), LARGE_TEXT_SIZE, TOKEN_TALLY_X, TOP_TOKEN_TALLY_Y,(0, 0, 0), True)
+    draw_text(screen, str(game_board[bottom_player]["token_tally"]), LARGE_TEXT_SIZE, TOKEN_TALLY_X, BOTTOM_TOKEN_TALLY_Y,(0, 0, 0), True)
 
 def run_game_ui():
     pygame.init()
@@ -168,8 +183,8 @@ def run_game_ui():
                    'sp': [1, 1, 2, 2, 3, 3, 5], 'le': [1, 1, 1, 1, 1, 1, 2, 3, 4], 'x5': [8, 9, 10, 8, 10],
                    'x4': [4, 4, 5, 5, 6, 6], 'x3': [3, 3, 1, 1, 2, 2, 2], 'ca': [5]},
         'current_player': "player1",
-        'player1': {'hand': ['di', 'go', 'cl', 'sp', 'sp'], 'herd': ['ca',"ca","ca","ca",'ca',"ca","ca","ca",'ca',"ca","ca"], 'token_pile': [], 'token_tally': 0},
-        'player2': {'hand': ['le', 'le', 'le', 'cl'], 'herd': ['ca',"ca","ca","ca",'ca',"ca","ca","ca",'ca',"ca","ca"], 'token_pile': [], 'token_tally': 0}}
+        'player1': {'hand': ['di', 'go', 'cl', 'sp', 'sp'], 'herd': ['ca',"ca","ca","ca",'ca',"ca","ca","ca",'ca',"ca","ca"], 'token_bonus_amount': {'x3': 0, 'x4': 0, 'x5': 0}, 'token_tally': 0},
+        'player2': {'hand': ['le', 'le', 'le', 'cl'], 'herd': ['ca',"ca","ca","ca",'ca',"ca","ca","ca",'ca',"ca","ca"], 'token_bonus_amount': {'x3': 0, 'x4': 0, 'x5': 0}, 'token_tally': 0,}}
 
     running = True
 

@@ -127,13 +127,13 @@ class Board:
             "player1": {
                 "hand" : self.p1.hand ,
                 "herd" : self.p1.herd ,
-                "token_pile" : self.p1.get_bonus_amounts(),
+                "token_bonus_amount" : self.p1.get_bonus_amounts(),
                 "token_tally" : self.p1.token_tally ,
             } ,
             "player2": {
                 "hand" : self.p2.hand ,
                 "herd" : self.p2.herd ,
-                "token_pile" : self.p2.get_bonus_amounts(),
+                "token_bonus_amount" : self.p2.get_bonus_amounts(),
                 "token_tally" : self.p2.token_tally,
             }
         }
