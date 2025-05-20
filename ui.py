@@ -8,10 +8,7 @@ WIDTH, HEIGHT = 1920, 1080
 FPS = 60
 
 # Colores útiles
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-DARK_GRAY = (30, 30, 30)
-GREEN = (0, 200, 0)
+
 
 
 def load_images():
@@ -155,8 +152,9 @@ def draw_board(screen, game_board, images, top_player, bottom_player):
 
     for k, v in game_board[top_player]["token_bonus_amount"].items():
         screen.blit(images["tokens"][k], (TOKEN_X + (TOKEN_WIDTH + 20) * (int(k[1]) - 3), TOP_TOKEN_Y))
-        screen.blit(images["tokens"][k], (TOKEN_X + (TOKEN_WIDTH + 20) * (int(k[1]) - 3), BOTTOM_TOKEN_Y))
         draw_text(screen, str(v), SMALL_TEXT_SIZE, (TOKEN_VALUE_X + (TOKEN_WIDTH + 20) * (int(k[1]) - 3)), TOP_TOKEN_VALUE_Y, (0,0,0), True)
+    for k, v in game_board[bottom_player]["token_bonus_amount"].items():
+        screen.blit(images["tokens"][k], (TOKEN_X + (TOKEN_WIDTH + 20) * (int(k[1]) - 3), BOTTOM_TOKEN_Y))
         draw_text(screen, str(v), SMALL_TEXT_SIZE, (TOKEN_VALUE_X + (TOKEN_WIDTH + 20) * (int(k[1]) - 3)), BOTTOM_TOKEN_VALUE_Y, (0, 0, 0), True)
 
     draw_text(screen, str(len(game_board["deck"])), MEDIUM_TEXT_SIZE , DECK_SIZE_X, DECK_SIZE_Y,(0,0,0), True)

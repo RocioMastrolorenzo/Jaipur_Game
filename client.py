@@ -4,6 +4,8 @@ import json
 class GoBack(Exception):
     pass
 
+
+
 def turn(player, board):
     while True:
         try:

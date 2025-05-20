@@ -10,7 +10,7 @@ from player import Player
 from pprint import pp
 
 def send_board(p1,p2, board):
-    pprint.pp(board.jsonify())
+    print(board.jsonify())
     p1.conn.sendall(board.jsonify().encode())
     p2.conn.sendall(board.jsonify().encode())
 
@@ -75,6 +75,7 @@ if __name__ == '__main__':
     player1.conn = player_connections[0]
     player2 = Player(player2_name)
     player2.conn = player_connections[1]
+    send_str_to_both(player1,player2, "game start")
     game_end = False
     round_end = False
     stop_playing = False
@@ -118,17 +119,17 @@ if __name__ == '__main__':
                     board.switch_players()
                     print(board.current_player)
                     print("switcheó players")
-                    send_str_to_both(player1, player2, str(int(round_end)))
+                    # send_str_to_both(player1, player2, str(int(round_end)))
                     print("Mandó status")
                 board.give_camel_token()
                 print(board.tokens)
                 round_winner = board.give_point()
-                send_str_to_both(player1, player2, round_winner)
+                # send_str_to_both(player1, player2, round_winner)
                 print(f"Player 1: {player1.count_points()} Player 2: {player2.count_points()} \n{round_winner} wins!")
                 print(player1.score)
                 print(player2.score)
                 game_end = board.game_end_check()
-                send_str_to_both(player1, player2, str(int(game_end)))
+                # send_str_to_both(player1, player2, str(int(game_end)))
                 round_end = False
             game_end = False
             player1.score = 0
@@ -136,5 +137,5 @@ if __name__ == '__main__':
             stop_playing_p1 = player1.conn.recv(1).decode()
             stop_playing_p2 = player2.conn.recv(1).decode()
             stop_playing = stop_playing_check(stop_playing_p1, stop_playing_p2)
-            send_str_to_both(player1, player2, str(int(stop_playing)))
+            # send_str_to_both(player1, player2, str(int(stop_playing)))
 input()
