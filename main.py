@@ -6,7 +6,7 @@ import threading
 
 from client import turn
 from constants import *
-from ui import load_images, draw_text, draw_board
+from ui import load_images, draw_text, draw_board, select_card
 import pygame
 
 
@@ -66,17 +66,21 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 images_dict = load_images()
 pygame.display.set_caption("Jaipur - Cliente")
 clock = pygame.time.Clock()
-
+selected_cards = []
+hand_card_rects = []
+for i in range(7):
+    hand_card_rects.append(pygame.rect.Rect(BOTTOM_HAND_X + (PADDING + CARD_WIDTH) * i, BOTTOM_HAND_Y, CARD_WIDTH, CARD_HEIGHT))
 running = True
 
 while running:
     clock.tick(FPS)
     try:
         game_board = game_state_queue.get_nowait()
+        card_rects = hand_card_rects[:len(game_board[bottom_player]["hand"])]
     except queue.Empty:
         pass
 
-    # Eventos
+    # Events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -86,11 +90,20 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
             print("Click en:", mouse_pos)
-            # Acá podrías detectar clicks sobre cartas o botones
+            for card in card_rects:
+                if card.collidepoint(mouse_pos):
+                    if card not in selected_cards:
+                        selected_cards.append(card)
+                    else:
+                        selected_cards.remove(card)
 
-    # Dibujar
+
+    # Draw
     screen.fill(DARK_GRAY)
     draw_board(screen, game_board, images_dict, top_player, bottom_player)
+    for card in card_rects:
+        if card in selected_cards:
+            select_card(screen, COLOR_BORDER, card, WIDTH_BORDER)
 
     pygame.display.flip()
 

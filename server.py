@@ -94,6 +94,8 @@ if __name__ == '__main__':
                 print("3")
                 player1.deal_hand(deck)
                 player2.deal_hand(deck)
+                player1.sort_hand()
+                player2.sort_hand()
                 print("4")
                 while not round_end:
                     print("5")

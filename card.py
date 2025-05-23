@@ -4,7 +4,6 @@ import pygame
 class Card:
     def __init__(self, card_type):
         self.card_type: Resource = card_type
-        self.rect: pygame.Rect = pygame.Rect(511, 438, 145, 204)
         self.face_up: bool = True
 
     def __repr__(self):

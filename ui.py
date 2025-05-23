@@ -163,6 +163,9 @@ def draw_board(screen, game_board, images, top_player, bottom_player):
     draw_text(screen, str(game_board[top_player]["token_tally"]), LARGE_TEXT_SIZE, TOKEN_TALLY_X, TOP_TOKEN_TALLY_Y,(0, 0, 0), True)
     draw_text(screen, str(game_board[bottom_player]["token_tally"]), LARGE_TEXT_SIZE, TOKEN_TALLY_X, BOTTOM_TOKEN_TALLY_Y,(0, 0, 0), True)
 
+def select_card(surface, COLOR_BORDER, carta, WIDTH_BORDER):
+    pygame.draw.rect(surface, COLOR_BORDER, carta, WIDTH_BORDER)
+
 def run_game_ui():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
