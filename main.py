@@ -4,18 +4,11 @@ import socket
 import sys
 import threading
 
-from client import turn
+from client import turn, market_has_camels
 from constants import *
 from ui import load_images, draw_text, draw_board, select_card
 import pygame
 
-
-def turn_taker(board_queue, bottom_player, conn):
-    while True:
-        board = board_queue.get()
-        print(board["current_player"])
-        if board["current_player"] == bottom_player:
-            conn.sendall(json.dumps(turn(board["current_player"], board)).encode())
 
 def socket_receive_messages(conn, game_state_queue, board_queue):
     while True:
@@ -59,24 +52,45 @@ game_board = {'deck': [],
 board_queue.put(game_board)
 
 threading.Thread(target=socket_receive_messages,args=(client,game_state_queue, board_queue), daemon=True).start()
-threading.Thread(target=turn_taker, args=(board_queue, bottom_player, client), daemon=True).start()
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 images_dict = load_images()
 pygame.display.set_caption("Jaipur - Cliente")
 clock = pygame.time.Clock()
+running = True
 selected_cards = []
+selected_hand_indices = []
+selected_hand_types = []
 hand_card_rects = []
+card_rects = None
+button_rects = []
+market_rects = []
+selected_cards_market = []
+selected_indices_market = []
+selected_market_types = []
+state = "NOTHING_SELECTED"
+current_error_message = ""
+hand_length = 0
+herd_length = 0
+
 for i in range(7):
     hand_card_rects.append(pygame.rect.Rect(BOTTOM_HAND_X + (PADDING + CARD_WIDTH) * i, BOTTOM_HAND_Y, CARD_WIDTH, CARD_HEIGHT))
-running = True
+
+for i in range(4):
+    button_rects.append(pygame.rect.Rect(BUTTON_X + (BUTTON_WIDTH + PADDING) * i, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT))
+button_rects.append(pygame.rect.Rect(BUTTON_X + (BUTTON_WIDTH + PADDING) * 4, BUTTON_Y, BUTTON_OK_WIDTH, BUTTON_OK_HEIGHT))
+
+for i in range(5):
+    market_rects.append(pygame.rect.Rect(MARKET_X + (PADDING + CARD_WIDTH) * i, MARKET_Y, CARD_WIDTH, CARD_HEIGHT))
 
 while running:
     clock.tick(FPS)
     try:
         game_board = game_state_queue.get_nowait()
-        card_rects = hand_card_rects[:len(game_board[bottom_player]["hand"])]
+        herd_length = len(game_board[bottom_player]["herd"])
+        hand_length = len(game_board[bottom_player]["hand"])
+        card_rects = hand_card_rects[:hand_length]
     except queue.Empty:
         pass
 
@@ -90,20 +104,76 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
             print("Click en:", mouse_pos)
-            for card in card_rects:
-                if card.collidepoint(mouse_pos):
-                    if card not in selected_cards:
-                        selected_cards.append(card)
-                    else:
-                        selected_cards.remove(card)
+            if game_board["current_player"] == bottom_player:
+                for i, card in enumerate(card_rects):
+                    if card.collidepoint(mouse_pos):
+                        if card not in selected_cards:
+                            selected_cards.append(card)
+                            selected_hand_indices.append(i)
+                            selected_hand_types.append(game_board[bottom_player]["hand"][i])
+                        else:
+                            selected_cards.remove(card)
+                            selected_hand_indices.remove(i)
+                            selected_hand_types.remove(game_board[bottom_player]["hand"][i])
+                for i, card in enumerate(market_rects):
+                    if card.collidepoint(mouse_pos):
+                        if card not in selected_cards_market:
+                            selected_cards_market.append(card)
+                            selected_indices_market.append(i)
+                            selected_market_types.append(game_board["market"][i])
+                        else:
+                            selected_cards_market.remove(card)
+                            selected_indices_market.remove(i)
+                            selected_market_types.remove(game_board["market"][i])
 
+                if button_rects[0].collidepoint(mouse_pos):
+                    state = "SELL"
+                    current_error_message = ""
+                if button_rects[1].collidepoint(mouse_pos):
+                    state = "EXCHANGE"
+                    current_error_message = ""
+                if button_rects[2].collidepoint(mouse_pos):
+                    state = "TAKE_ONE"
+                    current_error_message = ""
+                if button_rects[3].collidepoint(mouse_pos):
+                    state = "TAKE_CAMELS"
+                    current_error_message = ""
+                if state in ("SELL", "EXCHANGE", "TAKE_ONE", "TAKE_CAMELS") and button_rects[4].collidepoint(mouse_pos):
+                    turn_list = turn(state, selected_hand_indices, selected_hand_types, selected_indices_market, selected_market_types, market_has_camels(game_board["market"]), hand_length, herd_length)
+
+                    if turn_list[0] == 5:
+                        current_error_message = turn_list[1]
+                    else:
+                        client.sendall(json.dumps(turn_list).encode())
+                        print("emtro mal")
+                    print(selected_hand_indices, selected_hand_types)
+                    selected_hand_indices = []
+                    selected_hand_types = []
+                    selected_cards = []
+                    selected_cards_market = []
+                    selected_indices_market = []
+                    selected_market_types = []
+                    state = "NOTHING_SELECTED"
 
     # Draw
     screen.fill(DARK_GRAY)
-    draw_board(screen, game_board, images_dict, top_player, bottom_player)
+    draw_board(screen, game_board, images_dict, top_player, bottom_player, state)
     for card in card_rects:
         if card in selected_cards:
-            select_card(screen, COLOR_BORDER, card, WIDTH_BORDER)
+            select_card(screen, YELLOW, card, WIDTH_BORDER)
+    for card in market_rects:
+        if card in selected_cards_market:
+            select_card(screen, YELLOW, card, WIDTH_BORDER)
+
+    if state == "SELL":
+        pygame.draw.rect(screen, YELLOW, button_rects[0], WIDTH_BORDER)
+    if state == "EXCHANGE":
+        pygame.draw.rect(screen, YELLOW, button_rects[1], WIDTH_BORDER)
+    if state == "TAKE_ONE":
+        pygame.draw.rect(screen, YELLOW, button_rects[2], WIDTH_BORDER)
+    if state == "TAKE_CAMELS":
+        pygame.draw.rect(screen, YELLOW, button_rects[3], WIDTH_BORDER)
+    draw_text(screen,str(current_error_message), MEDIUM_TEXT_SIZE, WIDTH//2 , BUTTON_Y - 35, color=RED, centered=True)
 
     pygame.display.flip()
 

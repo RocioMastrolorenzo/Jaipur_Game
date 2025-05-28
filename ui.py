@@ -75,7 +75,16 @@ def load_images():
     token_x4 = pygame.transform.scale(token_x4, (TOKEN_WIDTH, TOKEN_HEIGHT)).convert_alpha()
     token_x5 = pygame.image.load("assets/token_x5.png")
     token_x5 = pygame.transform.scale(token_x5, (TOKEN_WIDTH, TOKEN_HEIGHT)).convert_alpha()
-
+    button_take_one = pygame.image.load("assets/button_take_one.png")
+    button_take_one = pygame.transform.scale(button_take_one, (BUTTON_WIDTH, BUTTON_HEIGHT)).convert_alpha()
+    button_sell = pygame.image.load("assets/button_sell.png")
+    button_sell = pygame.transform.scale(button_sell, (BUTTON_WIDTH, BUTTON_HEIGHT)).convert_alpha()
+    button_exchange = pygame.image.load("assets/button_exchange.png")
+    button_exchange= pygame.transform.scale(button_exchange, (BUTTON_WIDTH, BUTTON_HEIGHT)).convert_alpha()
+    button_take_camels = pygame.image.load("assets/button_take_camels.png")
+    button_take_camels = pygame.transform.scale(button_take_camels, (BUTTON_WIDTH, BUTTON_HEIGHT)).convert_alpha()
+    button_ok = pygame.image.load("assets/button_ok.png")
+    button_ok = pygame.transform.scale(button_ok, (BUTTON_OK_WIDTH, BUTTON_OK_HEIGHT)).convert_alpha()
 
     images_dict = {
         "mat": mat_image,
@@ -112,7 +121,14 @@ def load_images():
             "x3": token_x3,
             "x4": token_x4,
             "x5": token_x5,
-        }
+        },
+        "buttons" : {
+            "sell": button_sell,
+            "exchange": button_exchange,
+            "take_one": button_take_one,
+            "take_camels": button_take_camels,
+            "ok": button_ok,
+        },
     }
     return images_dict
 
@@ -127,7 +143,7 @@ def draw_text(screen, text, size, x, y, color=WHITE, centered=False):
     screen.blit(surface, rect)
 
 
-def draw_board(screen, game_board, images, top_player, bottom_player):
+def draw_board(screen, game_board, images, top_player, bottom_player, state):
     screen.blit(images["mat"], (0, 0))
     for i, card in enumerate(game_board["market"]):
         screen.blit(images["cards"][card], (MARKET_X + (PADDING + CARD_WIDTH) * i,MARKET_Y))
@@ -162,6 +178,12 @@ def draw_board(screen, game_board, images, top_player, bottom_player):
     draw_text(screen, str(len(game_board[bottom_player]["herd"])), MEDIUM_TEXT_SIZE, HERD_SIZE_X, BOTTOM_HERD_SIZE_Y, (0, 0, 0), True)
     draw_text(screen, str(game_board[top_player]["token_tally"]), LARGE_TEXT_SIZE, TOKEN_TALLY_X, TOP_TOKEN_TALLY_Y,(0, 0, 0), True)
     draw_text(screen, str(game_board[bottom_player]["token_tally"]), LARGE_TEXT_SIZE, TOKEN_TALLY_X, BOTTOM_TOKEN_TALLY_Y,(0, 0, 0), True)
+
+    for i, button in enumerate(images["buttons"]):
+        if button == "ok" and state not in ("SELL", "EXCHANGE", "TAKE_ONE", "TAKE_CAMELS"):
+            continue
+        screen.blit(images["buttons"][button], ((BUTTON_X + (BUTTON_WIDTH + PADDING) * i), BUTTON_Y))
+
 
 def select_card(surface, COLOR_BORDER, carta, WIDTH_BORDER):
     pygame.draw.rect(surface, COLOR_BORDER, carta, WIDTH_BORDER)

@@ -1,34 +1,89 @@
 import socket
 import json
 
+
 class GoBack(Exception):
     pass
 
 
-
-def turn(player, board):
-    while True:
-        try:
-            chosen_turn = choose_turn()
-            if chosen_turn == 1:  # sell
-                user_type, user_amount = get_sell_input(player, board)
-                return [chosen_turn, user_type, user_amount]
-            elif chosen_turn == 2:  # exchange
-                player_indices, market_indices = get_exchange_input(player, board)
-                return [chosen_turn, player_indices, market_indices]
-            elif chosen_turn == 3:  # take one
-                card_index = get_take_one_resource_input(player, board)
-                return [chosen_turn, card_index]
-            elif chosen_turn == 4:  # take all camels
-                get_take_all_camels_input(board)
-                return [chosen_turn]
-        except GoBack as e:
-            print(e)
+def market_has_camels(market):
+    return "ca" in market
 
 
-def check_goback(string:str):
+def turn(state, selected_hand_indices, selected_hand_types, selected_indices_market, selected_market_types,
+         bool_market_has_camels, hand_length, herd_length):
+    try:
+        if state == "SELL":  # sell
+            user_amount = len(selected_hand_indices)
+            check_errors_sell(selected_hand_types, user_amount)
+            user_type = selected_hand_types[0]
+            return [1, user_type, user_amount]
+        elif state == "EXCHANGE":  # exchange
+            player_indices = sorted(selected_hand_indices)
+            market_indices = sorted(selected_indices_market)
+            if len(player_indices) < len(market_indices):
+                player_indices.extend([99] * (len(market_indices) - len(player_indices)))
+            check_errors_exchange(player_indices, market_indices, selected_market_types, selected_hand_types,
+                                  hand_length, herd_length)
+            return [2, player_indices, market_indices]
+        elif state == "TAKE_ONE":  # take one
+            check_errors_take_one(selected_indices_market, selected_market_types, hand_length)
+            card_index = selected_indices_market[0]
+            return [3, card_index]
+        elif state == "TAKE_CAMELS":  # take all camels
+            check_errors_camels(bool_market_has_camels)
+            return [4]
+    except ValueError as e:
+        return [5, str(e)]
+
+
+def check_goback(string: str):
     if "back" in string.lower():
         raise GoBack
+
+
+def check_errors_sell(selected_hand_types, user_amount):
+    expensive_resources = ["di", "go", "si"]
+    if user_amount < 1:
+        raise ValueError("You can't sell less than one card")
+    if len(set(selected_hand_types)) != 1:
+        raise ValueError("You must select only cards of the same type")
+    if selected_hand_types[0] in expensive_resources and user_amount < 2:
+        raise ValueError("You need to sell at least two of this type of resource")
+
+
+def check_errors_exchange(player_indices, market_indices, selected_market_types, selected_hand_types, hand_length, herd_length):
+    if hand_length + herd_length < len(player_indices):
+        raise ValueError("You don't have enough cards in your hand")
+    if player_indices.count(99) > herd_length:
+        raise ValueError("You don't have enough camels in your herd")
+    if len(player_indices) != len(market_indices):
+        raise ValueError("You must exchange the same amount of cards")
+    if len(market_indices) < 2:
+        raise ValueError("You must exchange at least two cards")
+    if "ca" in selected_market_types:
+        raise ValueError("You can't exchange camels")
+    if set(selected_hand_types).intersection(set(selected_market_types)):
+        raise ValueError("You can't exchange the same type of card")
+
+    # Calculates the amount of chosen cards that are camels, to see if the resulting hand will be over hand size limit
+    chosen_camels = len([i for i in player_indices if i > hand_length - 1])
+    if hand_length + chosen_camels > 7:
+        raise ValueError("You can't have more than seven cards in your hand")
+
+
+def check_errors_take_one(selected_indices_market, selected_market_types, hand_length):
+    if hand_length >= 7:
+        raise ValueError("You can't have more than seven cards in your hand")
+    if "ca" in selected_market_types:
+        raise ValueError("You can't take camels")
+    if len(selected_indices_market) != 1:
+        raise ValueError("You must take only one card from the market")
+
+
+def check_errors_camels(bool_market_has_camels):
+    if not bool_market_has_camels:
+        raise ValueError("There's no camels to take")
 
 
 def get_sell_input(player, board):
@@ -97,7 +152,7 @@ def get_exchange_input(player, board):
             print_market(board)
             market_indices = input("choose the cards you want to exchange separated by spaces: ")
             check_goback(market_indices)
-            market_indices = list({int(i) for i in market_indices.split(" ")}) # is a set first to remove duplicates
+            market_indices = list({int(i) for i in market_indices.split(" ")})  # is a set first to remove duplicates
 
             if len(market_indices) < 2:
                 raise ValueError("You must exchange at least two cards")
@@ -182,6 +237,7 @@ def get_take_one_resource_input(player, board):
 
     return card_index_user
 
+
 def get_take_all_camels_input(board):
     if "ca" not in board["market"]:
         raise GoBack("There's no camels to take")
@@ -243,6 +299,7 @@ def choose_turn():
         else:
             print("Enter a valid action")
 
+
 def print_board(board, top_player, bottom_player):
     s = ""
     blank_line = " " * 104 + "\n"
@@ -269,6 +326,7 @@ def print_board(board, top_player, bottom_player):
     s += f'{" " * 10} Your hand: {board[bottom_player]["hand"]}\n'
     s += "+" + "-" * 104 + "+" + "\n"
     return print(s)
+
 
 def play_again():
     while True:
