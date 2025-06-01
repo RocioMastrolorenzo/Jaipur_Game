@@ -75,6 +75,8 @@ def load_images():
     token_x4 = pygame.transform.scale(token_x4, (TOKEN_WIDTH, TOKEN_HEIGHT)).convert_alpha()
     token_x5 = pygame.image.load("assets/token_x5.png")
     token_x5 = pygame.transform.scale(token_x5, (TOKEN_WIDTH, TOKEN_HEIGHT)).convert_alpha()
+    token_win = pygame.image.load("assets/token_win.png")
+    token_win = pygame.transform.scale(token_win, (TOKEN_WIDTH, TOKEN_HEIGHT)).convert_alpha()
     button_take_one = pygame.image.load("assets/button_take_one.png")
     button_take_one = pygame.transform.scale(button_take_one, (BUTTON_WIDTH, BUTTON_HEIGHT)).convert_alpha()
     button_sell = pygame.image.load("assets/button_sell.png")
@@ -121,6 +123,7 @@ def load_images():
             "x3": token_x3,
             "x4": token_x4,
             "x5": token_x5,
+            "point" : token_win,
         },
         "buttons" : {
             "sell": button_sell,
